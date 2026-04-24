@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>АэроПресс 2026</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; background: linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.8)), url('img/post.jpg') center/cover; color: white; }
+        .card { background: rgba(26,26,26,0.95); padding: 30px; border-radius: 20px; border: 1px solid #d4a373; width: 100%; max-width: 380px; text-align: center; }
+        input { width: 100%; padding: 12px; margin: 8px 0; border-radius: 8px; border: 1px solid #444; background: #222; color: white; box-sizing: border-box; }
+        button { width: 100%; padding: 15px; background: #d4a373; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        #message { display: none; }
+        .payment-box { background: rgba(212,163,115,0.1); padding: 15px; border-radius: 10px; margin: 15px 0; border: 1px dashed #d4a373; }
+        .tg-link { display: inline-block; background: #24A1DE; color: white; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: bold; margin-top: 10px; }
+        .loader { margin: 15px auto; border: 3px solid #333; border-top: 3px solid #d4a373; border-radius: 50%; width: 25px; height: 25px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <div id="form-container">
+        <h2 style="color:#d4a373">АЭРОПРЕСС</h2>
+        <p>Регистрация на чемпионат</p>
+        <form id="regForm">
+            <input type="text" name="name" id="userName" placeholder="Имя и Фамилия" required>
+            <input type="tel" name="phone" placeholder="Номер телефона" required>
+            <input type="text" name="tg_nick" placeholder="@username в Telegram" required>
+            <input type="number" name="tickets" value="1" min="1" required>
+            <button type="submit" id="btn">Зарегистрироваться</button>
+        </form>
+    </div>
+
+    <div id="message">
+        <h3 style="color:#d4a373">Почти готово!</h3>
+        <div class="payment-box">
+            <small>1. Оплатите участие:</small>
+            <div style="font-size:18px; font-weight:bold">+994 99 799 96 00</div>
+        </div>
+        <div>
+            <small>2. Для получения билета:</small><br>
+            <a href="https://t.me/ucb_aeropress_bot" target="_blank" class="tg-link">ЗАПУСТИТЬ БОТА</a>
+        </div>
+        <div class="loader"></div>
+        <p style="font-size:12px; color:#aaa">Ждем подтверждения оплаты...</p>
+    </div>
+</div>
+
+<script>
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbxvcnRcGXIu-VGtakctk4PLEtKhXczvsjeF46dQT-uoF2IL8R1IjfmOMkvuzwPQZ5ABsA/exec';
+    const form = document.getElementById('regForm');
+    let rowNum;
+
+    form.addEventListener('submit', e => {
+        e.preventDefault();
+        document.getElementById('btn').disabled = true;
+        document.getElementById('btn').innerText = 'Отправка...';
+
+        fetch(scriptURL, { method: 'POST', body: new FormData(form) })
+        .then(res => res.json())
+        .then(data => {
+            rowNum = data.row;
+            document.getElementById('form-container').style.display = 'none';
+            document.getElementById('message').style.display = 'block';
+            checkStatus();
+        })
+        .catch(err => {
+            alert('Ошибка! Сделайте New Deployment в Google');
+            document.getElementById('btn').disabled = false;
+            document.getElementById('btn').innerText = 'Зарегистрироваться';
+        });
+    });
+
+    function checkStatus() {
+        setInterval(() => {
+            fetch(`${scriptURL}?row=${rowNum}`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === "Оплачено") {
+                    window.location.href = "ticket.html?name=" + encodeURIComponent(document.getElementById('userName').value);
+                }
+            });
+        }, 5000);
+    }
+</script>
+</body>
+</html>
