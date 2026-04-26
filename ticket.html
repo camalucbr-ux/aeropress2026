@@ -1,124 +1,36 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>Ваш билет на АэроПресс 2026</title>
+    <title>Твой Билет</title>
     <style>
-        body {
-            background: #000;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-            /* Запрещаем выделение текста, чтобы нельзя было легко скопировать */
-            user-select: none;
-        }
-        .ticket-card {
-            width: 650px;
-            background: #1a1a1a; 
-            color: #f4f1ea; 
-            font-family: 'Segoe UI', Roboto, sans-serif;
-            border: 3px solid #d4a373; 
-            border-radius: 15px;
-            display: flex;
-            overflow: hidden;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.6);
+        body { margin: 0; background: #000; display: flex; justify-content: center; align-items: center; height: 100vh; }
+        .ticket {
+            width: 600px; height: 300px;
+            background: url('img/ticket.png') no-repeat center;
+            background-size: contain;
             position: relative;
+            font-family: Arial, sans-serif;
+            color: white;
         }
-        .info-side {
-            padding: 30px;
-            flex: 1.5;
-            border-right: 2px dashed #444;
-            background: linear-gradient(135deg, #1a1a1a 0%, #2c1e12 100%);
-        }
-        .champ-label {
-            background: #d4a373;
-            color: #1a1a1a;
-            padding: 5px 12px;
-            font-size: 12px;
-            font-weight: bold;
-            text-transform: uppercase;
-            border-radius: 4px;
-            display: inline-block;
-        }
-        .event-name { 
-            font-size: 40px; 
-            font-weight: 900; 
-            margin: 15px 0 5px;
-            color: #fff;
-            letter-spacing: 1px;
-        }
-        .participant-name {
-            font-size: 24px;
-            margin: 20px 0 10px;
-            border-bottom: 1px solid #d4a373;
-            padding-bottom: 5px;
-            min-height: 32px;
-            text-transform: uppercase;
-        }
-        .role { font-size: 18px; color: #d4a373; font-weight: bold; }
-        .qr-side {
-            flex: 1;
-            background: #fff;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
-        .qr-image { width: 160px; height: 160px; }
-        .ticket-number { color: #000; font-size: 12px; margin-top: 10px; font-family: monospace; }
-
-        /* СКРЫВАЕМ ВСЁ ПРИ ПЕЧАТИ */
-        @media print {
-            body { display: none !important; }
-        }
+        #userName { position: absolute; top: 130px; left: 40px; font-size: 24px; text-transform: uppercase; }
     </style>
 </head>
-<body oncontextmenu="return false;"> <div class="ticket-card">
-    <div class="info-side">
-        <div class="champ-label">Официальный участник</div>
-        <div class="event-name">АЭРОПРЕСС</div>
-        <div style="font-size: 14px; color: #d4a373; margin-bottom: 20px;">ЧЕМПИОНАТ ПО КОФЕ 2026</div>
-        
-        <div class="participant-name" id="display-name">Загрузка...</div>
-        
-        <div class="role">КАТЕГОРИЯ: COMPETITOR</div>
-        
-        <div style="margin-top: 40px; font-size: 11px; color: #888;">
-            Место проведения уточняется • Предъявите этот экран на входе
-        </div>
+<body>
+    <div class="ticket">
+        <div id="userName">Загрузка...</div>
     </div>
-    <div class="qr-side">
-        <img src="" id="qr-code" class="qr-image" alt="QR Code">
-        <div class="ticket-number" id="ticket-id">ID: AP-2026-WAIT</div>
-    </div>
-</div>
 
-<script>
-    // Блокировка Ctrl+P (печать) и Ctrl+S (сохранение)
-    document.addEventListener('keydown', function(e) {
-        if ((e.ctrlKey || e.metaKey) && (e.key === 'p' || e.key === 's' || e.key === 'u')) {
-            e.preventDefault();
-            alert('Печать и сохранение билета ограничены. Пожалуйста, сделайте скриншот.');
-        }
-    });
+    <script>
+        // Скрипт берет номер строки из ссылки и спрашивает имя у таблицы
+        const urlParams = new URLSearchParams(window.location.search);
+        const row = urlParams.get('row');
+        const SCRIPT_URL = "ТВОЙ_URL_СКРИПТА"; // Тот же, что и в index.html
 
-    const urlParams = new URLSearchParams(window.location.search);
-    const name = urlParams.get('name');
-
-    if (name) {
-        document.getElementById('display-name').innerText = name;
-        const qrImg = document.getElementById('qr-code');
-        qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=AeroPress_2026_${encodeURIComponent(name)}`;
-        
-        const randomID = Math.floor(1000 + Math.random() * 9000);
-        document.getElementById('ticket-id').innerText = "ID: AP-2026-" + randomID;
-    } else {
-        document.getElementById('display-name').innerText = "УЧАСТНИК";
-    }
-</script>
-
+        fetch(SCRIPT_URL + "?row=" + row)
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById('userName').innerText = data.name;
+            });
+    </script>
 </body>
 </html>
